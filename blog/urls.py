@@ -24,7 +24,7 @@ from posts.views import published_posts
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('hello/', hello),
-    path('', main),
+    path('', main, name='home'),
     path('about/',about),
     path('posts/', get_posts),
     path("post/<int:id>/", get_post, name="post_detail"),

@@ -29,12 +29,11 @@
                                 {{ post.title }}
                             </a>
                         </h5>
-                        <p class="card-text text-muted small mb-2">
-                            📅 {{ post.published_at|date:"d.m.Y" }}
-                        </p>
+                        <p>📅 {{ post.published_at|date:"d.m.Y" }}{% if post.user %} | Автор: {{ post.user.name }}{% endif %}</p>
                         <p class="card-text flex-grow-1">
                             {{ post.content|truncatewords:20 }}
                         </p>
+                        
                         <a href="{% url 'post_detail' post.id %}" class="btn btn-outline-primary mt-auto">
                             Читать →
                         </a> 

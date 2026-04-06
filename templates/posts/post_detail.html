@@ -43,6 +43,9 @@
             </small>
         </p>
         
+        {% if post.author %}
+            <p>Автор: {{ post.user.name }} | Email: {{ post.user.email }}</p>
+        {% endif %}
         <hr>
         
         <!-- 🔹 Контент с сохранением переносов -->
