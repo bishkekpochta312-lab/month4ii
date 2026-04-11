@@ -10,6 +10,15 @@
         <p class="text-muted">Всего опубликовано: {{ posts.count }}</p>
     </div>
 </div>
+<div class="mb-3">
+    <a href="?" class="btn btn-outline-secondary btn-sm">Все</a>
+    
+    {% for tag in tags %}
+        <a href="?tag={{ tag.id }}" class="btn btn-outline-primary btn-sm">
+            {{ tag.name }}
+        </a>
+    {% endfor %}
+</div>
 
 {% if posts %}
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
@@ -29,10 +38,18 @@
                                 {{ post.header }}
                             </a>
                         </h5>
-                        <p>📅 {{ post.published_at|date:"d.m.Y" }}{% if post.user %} | Автор: {{ post.user.name }}{% endif %}</p>
+                        <p>📅 {{ post.published_at|date:"d.m.Y" }}{% if post.user %} | Автор: {{ post.user.username }}{% endif %}</p>
                         <p class="card-text flex-grow-1">
                             {{ post.content|truncatewords:20 }}
                         </p>
+
+                        {% if post.tags.all %}
+                            <div class="mb-3">
+                                {% for tag in post.tags.all %}
+                                    <span class="badge bg-secondary me-1">{{ tag.name }}</span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                         
                         <a href="{% url 'post_detail' post.id %}" class="btn btn-outline-primary mt-auto">
                             Читать →

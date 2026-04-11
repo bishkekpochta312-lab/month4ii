@@ -21,7 +21,10 @@ from django.contrib.auth.models import User
 #         return self.name
     
 class Tags(models.Model):
-    title = models.CharField(max_length=255)
+    name = models.CharField(max_length=50, default="default_tag")
+
+    def __str__(self):
+        return self.name
 
 class Post(models.Model):
 
@@ -29,7 +32,7 @@ class Post(models.Model):
     description = models.TextField(blank=True)
     rate = models.IntegerField(null=True, blank=True)
 
-    tags = models.ManyToManyField(Tags,blank=True)
+    tags = models.ManyToManyField(Tags, blank=True, related_name="posts")
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)  
 

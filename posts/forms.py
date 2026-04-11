@@ -22,7 +22,7 @@ class CommonPostForm(forms.Form):
 
         return header
 
-    def clean(self) -> dict[str, any]:
+    def clean(self) -> dict[str, Any]:
         cleaned_data = super().clean()
 
         rate = int(cleaned_data.get("rate"))

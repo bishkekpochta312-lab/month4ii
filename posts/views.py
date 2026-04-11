@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpRequest
-from posts.models import Post
+from posts.models import Post, Tags
 from posts.forms import CommonPostForm
 from django.contrib.auth.models import AnonymousUser
 # Create your views here.
@@ -18,9 +18,19 @@ def about(request):
 
 def get_posts(request):
 
-    posts = Post.objects.filter(is_published=True).order_by('-published_at')
-    return render(request, "posts/post_view.html", context={"posts": posts})
+    tag_id = request.GET.get("tag")
 
+    posts = Post.objects.all().order_by("-created_at")
+
+    if tag_id:
+        posts = posts.filter(tags__id=tag_id)
+
+    tags = Tags.objects.all()
+
+    return render(request, "posts/post_view.html", {
+        "posts": posts,
+        "tags": tags
+    })
 
 def get_post(request, id):
     post = get_object_or_404(Post, pk=id, is_published=True)
@@ -28,7 +38,7 @@ def get_post(request, id):
 
 def published_posts(request):
     posts = Post.objects.filter(is_published=True).order_by('-published_at')
-    return render(request, "posts/posts_view.html", {"posts": posts})
+    return render(request, "posts/post_view.html", {"posts": posts})
 
 def create_post(request: HttpRequest):
     
