@@ -56,6 +56,16 @@
         </div>
     </div>
     
+    <!-- кнопка деления -->
+    {% if request.user == post.user %}
+    <form method="post" action="{% url 'delete_post' post.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">
+            Удалить пост
+        </button>
+    </form>
+    {% endif %}
+
     <!-- 🔹 Футер карточки -->
     <div class="card-footer bg-white border-top-0">
         <a href="{% url 'posts' %}" class="btn btn-outline-secondary">

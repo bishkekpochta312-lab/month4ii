@@ -3,6 +3,7 @@ from django.http import HttpResponse, HttpRequest
 from posts.models import Post, Tags
 from posts.forms import CommonPostForm
 from django.contrib.auth.models import AnonymousUser
+from django.contrib.auth.decorators import login_required
 # Create your views here.
 
 def hello(request):
@@ -61,3 +62,18 @@ def create_post(request: HttpRequest):
                 return redirect("post_list")
             form.add_error(None, "Вы не залогинились!")
         return render(request, "posts/create_post.html", context={"form": form})
+    
+
+@login_required
+def delete_post(request, id):
+    post = get_object_or_404(Post, pk=id)
+
+    # ❗ только автор может удалить
+    if post.user != request.user:
+        return redirect("post_detail", id=post.id)
+
+    if request.method == "POST":
+        post.delete()
+        return redirect("post_list")
+
+    return render(request, "posts/confirm_delete.html", {"post": post})
