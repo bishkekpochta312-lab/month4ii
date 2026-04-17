@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<div class="container mt-4" style="max-width: 600px;">
+    <h2>✏️ Редактировать пост</h2>
+    
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label class="form-label">Заголовок</label>
+            <input type="text" name="header" class="form-control" 
+                   value="{{ post.header }}">
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label">Текст</label>
+            <textarea name="description" class="form-control" rows="5" required>{{ post.description }}</textarea>
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label">Картинка</label>
+            {% if post.image %}
+                <p><img src="{{ post.image.url }}" style="max-height: 100px;"></p>
+            {% endif %}
+            <input type="file" name="image" class="form-control" accept="image/*">
+            <small class="text-muted">Оставьте пустым, чтобы не менять картинку</small>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+        <a href="{% url 'post_detail' post.id %}" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+
+{% endblock %}

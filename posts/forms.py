@@ -31,3 +31,13 @@ class CommonPostForm(forms.Form):
             raise forms.ValidationError("Rate less then 5")
         
         return cleaned_data
+    
+
+class EditPostForm(forms.Form):
+    header = forms.CharField(max_length=255)
+    description = forms.CharField()
+    image = forms.ImageField(required=False)
+
+
+class CreateCommentForm(forms.Form):
+    text = forms.CharField(min_length=10)

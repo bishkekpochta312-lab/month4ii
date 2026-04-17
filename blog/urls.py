@@ -16,12 +16,22 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from posts.views import hello, main, about, get_posts, get_post, create_post
+from posts.views import (
+    about,
+    create_comment,
+    create_post,
+    delete_post,
+    edit_post_view,
+    get_post,
+    get_posts,
+    hello,
+    main,
+)
 from django.conf import settings
 from django.conf.urls.static import static
 from posts.views import published_posts
-from users.views import login_view, logout_view, register_view
-from posts import views 
+from users.views import login_view, logout_view, register_view, update_user
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -35,7 +45,11 @@ urlpatterns = [
     path("users/register/", register_view, name="register"),
     path("users/login/", login_view, name="login"),
     path("users/logout/", logout_view, name="logout"),
-    path("post/<int:id>/delete/", views.delete_post, name="delete_post"),
+    path("post/<int:id>/delete/", delete_post, name="delete_post"),
+    path("post/<int:id>/edit/", edit_post_view, name="edit_post"),
+    path("post/<int:id>/comment/", create_comment, name="create_comment"),
+    path("profile/edit/", update_user, name="update_user"),
 ]
+
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

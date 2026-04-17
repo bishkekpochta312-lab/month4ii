@@ -1,9 +1,25 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
+from django.contrib.auth.decorators import login_required
 
 from users.forms import LoginForm, RegisterForm
+from .forms import UserUpdateForm
 
+@login_required
+def update_user(request):
+    user = request.user
+
+    if request.method == "POST":
+        form = UserUpdateForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect("home")
+
+    else:
+        form = UserUpdateForm(instance=user)
+
+    return render(request, "users/update_user.html", {"form": form})
 
 def register_view(request):
 
