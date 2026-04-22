@@ -17,20 +17,20 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from posts.views import (
+    PostCreateView,
+    PostDetailView,
+    PostsListView,
     about,
     create_comment,
-    create_post,
     delete_post,
     edit_post_view,
-    get_post,
-    get_posts,
     hello,
     main,
 )
 from django.conf import settings
 from django.conf.urls.static import static
 from posts.views import published_posts
-from users.views import login_view, logout_view, register_view, update_user
+from users.views import login_view, logout_view, register_view, update_user, GetProfileView
 
 
 urlpatterns = [
@@ -38,10 +38,10 @@ urlpatterns = [
     path('hello/', hello),
     path('', main, name='home'),
     path('about/',about),
-    path('posts/', get_posts, name="post_list"),
-    path("post/<int:id>/", get_post, name="post_detail"),
-    path("posts/", published_posts, name="posts"),
-    path("post/create/", create_post, name="post_create"),
+    path("posts/", PostsListView.as_view(), name="post_list"),
+    path("post/<int:pk>/", PostDetailView.as_view(), name="post_detail"),
+    path("post/create/", PostCreateView.as_view(), name="post_create"),
+        path("posts/", published_posts, name="posts"),
     path("users/register/", register_view, name="register"),
     path("users/login/", login_view, name="login"),
     path("users/logout/", logout_view, name="logout"),

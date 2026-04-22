@@ -1,24 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
-# Create your models here.
 
-# INSERT INTO  posts_post () ==> Post.object.create(header="fiodf", description="Mir<ir",user = 1)
-
-# SELECT * FROM posts_post,  posts = Post.objects,all()
-
-# SELECT * FROM posts_post WHERE header ILIKE "% AB %",   posts = Post.objects.filter(header__icontains = "ab")
-
-
-
-
-# class User(models.Model):
-#     name = models.CharField(max_length=255)
-#     email = models.EmailField(default="mirdins@bk.ru")
-#     created_at = models.DateTimeField(default=timezone.now)  # дата регистрации
-
-#     def __str__(self):
-#         return self.name
     
 class Tags(models.Model):
     name = models.CharField(max_length=50, default="default_tag")
@@ -49,10 +32,36 @@ class Post(models.Model):
     def __str__(self):
         return f"{self.header}"
     
+    class Meta:
+        ordering = ("-created_at",)
+    
 class Comment(models.Model):
     text = models.TextField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
     created_at = models.DateTimeField(auto_now_add=True)
 
+
+
+
+
+
+# Create your models here.
+
+# INSERT INTO  posts_post () ==> Post.object.create(header="fiodf", description="Mir<ir",user = 1)
+
+# SELECT * FROM posts_post,  posts = Post.objects,all()
+
+# SELECT * FROM posts_post WHERE header ILIKE "% AB %",   posts = Post.objects.filter(header__icontains = "ab")
+
+
+
+
+# class User(models.Model):
+#     name = models.CharField(max_length=255)
+#     email = models.EmailField(default="mirdins@bk.ru")
+#     created_at = models.DateTimeField(default=timezone.now)  # дата регистрации
+
+#     def __str__(self):
+#         return self.name
     

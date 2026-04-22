@@ -41,3 +41,5 @@ class EditPostForm(forms.Form):
 
 class CreateCommentForm(forms.Form):
     text = forms.CharField(min_length=10)
+
+
