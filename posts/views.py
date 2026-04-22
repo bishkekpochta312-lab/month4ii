@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpRequest
 from posts.models import Post, Tags, Comment
-from posts.forms import PostForm, CreateCommentForm, EditPostForm
+from posts.forms import PostForm, CreateCommentForm, EditPostForm, PostSearchForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms.models import BaseModelForm
 from django.contrib.auth.models import AnonymousUser
@@ -10,7 +10,7 @@ from django.contrib import messages
 from typing import Any
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, ListView
-
+from django.db.models import Q
 
 def hello(request):
     return HttpResponse("hello django")
@@ -23,16 +23,6 @@ def about(request):
 
     return HttpResponse("<h1>About us</h1> <a href='/'> Main </a>")
 
-def get_posts(request):
-    tag_id = request.GET.get("tag")
-    posts = Post.objects.order_by("-created_at").prefetch_related("comments").all()
-    if tag_id:
-        posts = posts.filter(tags__id=tag_id)
-    tags = Tags.objects.all()
-    return render(request, "posts/post_view.html", {
-        "posts": posts,
-        "tags": tags
-    })
 
 
 
@@ -41,7 +31,18 @@ class PostsListView(ListView):
     template_name = "posts/post_view.html"
     context_object_name = "posts"
     paginate_by = 6 
-
+    def get_queryset(self):
+            queryset = Post.objects.order_by("-created_at")
+            query = self.request.GET.get("query")
+            tag_id = self.request.GET.get("tag")
+            if query:
+                queryset = queryset.filter(
+                    Q(header__icontains=query) |
+                    Q(description__icontains=query)
+                )
+            if tag_id:
+                queryset = queryset.filter(tags__id=tag_id)
+            return queryset
 def published_posts(request):
     posts = Post.objects.filter(is_published=True).order_by('-published_at')
     return render(request, "posts/post_view.html", {"posts": posts})
@@ -148,3 +149,31 @@ def create_comment(request, id):
 #             return redirect("post_list")
 #         messages.error(request, "Ошибка при созданий комментария")
 #         return render(request, "posts/create_post.html", context={"form": form})
+
+# def get_posts(request):
+#     tag_id = request.GET.get("tag")
+
+#     form = PostSearchForm(request.GET or None)
+
+#     posts = Post.objects.order_by("-created_at").prefetch_related("comments")
+
+
+#     if form.is_valid():
+#         query = form.cleaned_data.get('query')
+#         if query:
+#             posts = posts.filter(
+#                 Q(header__icontains=query) |
+#                 Q(description__icontains=query)
+#             )
+
+
+#     if tag_id:
+#         posts = posts.filter(tags__id=tag_id)
+
+#     tags = Tags.objects.all()
+
+#     return render(request, "posts/post_view.html", {
+#         'form': form,
+#         "posts": posts,
+#         "tags": tags
+#     })

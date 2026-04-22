@@ -3,6 +3,7 @@ from posts.models import Post
 from django import forms
 from typing import Any
 
+
 class PostForm(ModelForm):
     class Meta:
         model = Post
@@ -43,3 +44,12 @@ class CreateCommentForm(forms.Form):
     text = forms.CharField(min_length=10)
 
 
+class PostSearchForm(forms.Form):
+    query = forms.CharField(
+    label='Поиск',
+    required=False,
+    widget=forms.TextInput(attrs={
+        'class': 'form-control me-2',
+        'placeholder': 'Search'
+    })
+)

@@ -47,10 +47,10 @@
           <a class="nav-link disabled" aria-disabled="true">Disabled</a>
         </li>
       </ul>
-      <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-        <button class="btn btn-outline-success" type="submit">Search</button>
-      </form>
+      <form method="get" class="d-flex">
+    <input type="search" name="query" value="{{ request.GET.query|default:'' }}">
+    <button class="btn btn-outline-success" type="submit">Search</button>
+    </form>
       {% if user %}
     <div class="d-flex align-items-center text-white">
         {% if user.is_authenticated %}
@@ -60,6 +60,7 @@
         </div>
         <span style="color: black;">{{ user.username }}</span>
         <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm ms-2">Выйти</a>
+       
             {% endif %}
     {% endif %}
     </div>
