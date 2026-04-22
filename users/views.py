@@ -2,79 +2,73 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
-
+from django.contrib.auth.views import LogoutView
 from users.forms import LoginForm, RegisterForm
 from .forms import UserUpdateForm
 from typing import Any
 from django.http import HttpRequest, HttpResponse
-from django.views.generic import DetailView
+from django.views.generic import DetailView, UpdateView, FormView
 from users.service import PostObjectsService
-
-@login_required
-def update_user(request):
-    user = request.user
-
-    if request.method == "POST":
-        form = UserUpdateForm(request.POST, instance=user)
-        if form.is_valid():
-            form.save()
-            return redirect("home")
-
-    else:
-        form = UserUpdateForm(instance=user)
-
-    return render(request, "users/update_user.html", {"form": form})
-
-def register_view(request):
-
-    if request.method == "POST":
-        form = RegisterForm(request.POST)
-
-        if form.is_valid():
-            user = User.objects.create(username=form.cleaned_data.get("username"))
-            password = form.cleaned_data.get("password")
-
-            user.set_password(password)
-            user.save()
-            return redirect("home")
-
-        return render(request, "users/register.html", {"form": form})
-
-    form = RegisterForm()
-
-    return render(request, "users/register.html", {"form": form})
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
 
 
-def login_view(request):
 
-    if request.method == "POST":
-        form = LoginForm(request.POST)
+class UserUpdateView(LoginRequiredMixin, UpdateView):
+    model = User
+    form_class = UserUpdateForm
+    template_name = "users/update_user.html"
+    success_url = reverse_lazy("home")
 
-        if form.is_valid():
-            cleaned_data = form.cleaned_data
-            user = authenticate(
-                request,
-                username=cleaned_data["username"],
-                password=cleaned_data["password"],
-            )
-            if user:
-                login(request, user)
-                return redirect("home")
-            form.add_error(None, "Введенный логин или пароль неверные!")
-        return render(request, "users/login.html", {"form": form})
-
-    form = LoginForm()
-
-    return render(request, "users/login.html", {"form": form})
+    def get_object(self):
+        return self.request.user
 
 
-def logout_view(request):
-    if request.user:
-        logout(request)
-        return redirect("home")
+class RegisterView(FormView):
+    template_name = "users/register.html"
+    form_class = RegisterForm
+    success_url = reverse_lazy("home")
 
-    else:
-        raise ValueError("Вы не авторизованы!")
+    def form_valid(self, form):
+        user = User.objects.create(
+            username=form.cleaned_data.get("username")
+        )
+        password = form.cleaned_data.get("password")
+
+        user.set_password(password)
+        user.save()
+        login(self.request, user)
+        return super().form_valid(form)
+
+
+class LoginView(FormView):
+    template_name = "users/login.html"
+    form_class = LoginForm
+    success_url = reverse_lazy("home")
+
+    def form_valid(self, form):
+        cleaned_data = form.cleaned_data
+
+        user = authenticate(
+            self.request,
+            username=cleaned_data["username"],
+            password=cleaned_data["password"],
+        )
+
+        if user:
+            login(self.request, user)
+            return super().form_valid(form)
+
+        form.add_error(None, "Введенный логин или пароль неверные!")
+        return self.form_invalid(form)
+
+
+
+class CustomLogoutView(LogoutView):
+    next_page = reverse_lazy("home")
+
+    def get(self, request, *args, **kwargs):
+        return self.post(request, *args, **kwargs)
     
 
 class GetProfileView(DetailView):

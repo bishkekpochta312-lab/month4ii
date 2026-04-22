@@ -1,40 +1,62 @@
 {% extends 'base.html' %}
 
-
 {% block content %}
 
 <div class="container mt-4" style="max-width: 600px;">
     <h2>✏️ Редактировать пост</h2>
-    
-    {% if error %}
-        <div class="alert alert-danger">{{ error }}</div>
-    {% endif %}
-    
+
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        
+
+        <!-- 🔴 Общие ошибки формы -->
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {% for error in form.non_field_errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- 🔴 Ошибки полей -->
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <div><strong>{{ field.label }}:</strong> {{ error }}</div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- 🔹 Заголовок -->
         <div class="mb-3">
             <label class="form-label">Заголовок</label>
-            <input type="text" name="header" class="form-control" 
-                   value="{{ post.header }}">
+            {{ form.header }}
         </div>
-        
+
+        <!-- 🔹 Текст -->
         <div class="mb-3">
             <label class="form-label">Текст</label>
-            <textarea name="description" class="form-control" rows="5" required>{{ post.description }}</textarea>
+            {{ form.description }}
         </div>
-        
+
+        <!-- 🔹 Картинка -->
         <div class="mb-3">
             <label class="form-label">Картинка</label>
-            {% if post.image %}
-                <p><img src="{{ post.image.url }}" style="max-height: 100px;"></p>
+
+            {% if form.instance.image %}
+                <p>
+                    <img src="{{ form.instance.image.url }}" style="max-height: 100px;">
+                </p>
             {% endif %}
-            <input type="file" name="image" class="form-control" accept="image/*">
+
+            {{ form.image }}
             <small class="text-muted">Оставьте пустым, чтобы не менять картинку</small>
         </div>
-        
+
+        <!-- 🔹 Кнопки -->
         <button type="submit" class="btn btn-primary">Сохранить изменения</button>
-        <a href="{% url 'post_detail' post.id %}" class="btn btn-secondary">Отмена</a>
+        <a href="{% url 'post_detail' form.instance.pk %}" class="btn btn-secondary">Отмена</a>
     </form>
 </div>
 

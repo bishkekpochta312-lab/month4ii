@@ -20,17 +20,17 @@ from posts.views import (
     PostCreateView,
     PostDetailView,
     PostsListView,
+    DeletePostView,
+    EditPostView,
+    CreateCommentView,
     about,
-    create_comment,
-    delete_post,
-    edit_post_view,
     hello,
     main,
 )
 from django.conf import settings
 from django.conf.urls.static import static
-from posts.views import published_posts
-from users.views import login_view, logout_view, register_view, update_user, GetProfileView
+
+from users.views import UserUpdateView,RegisterView,LoginView,CustomLogoutView,GetProfileView
 
 
 urlpatterns = [
@@ -41,14 +41,14 @@ urlpatterns = [
     path("posts/", PostsListView.as_view(), name="post_list"),
     path("post/<int:pk>/", PostDetailView.as_view(), name="post_detail"),
     path("post/create/", PostCreateView.as_view(), name="post_create"),
-        path("posts/", published_posts, name="posts"),
-    path("users/register/", register_view, name="register"),
-    path("users/login/", login_view, name="login"),
-    path("users/logout/", logout_view, name="logout"),
-    path("post/<int:id>/delete/", delete_post, name="delete_post"),
-    path("post/<int:id>/edit/", edit_post_view, name="edit_post"),
-    path("post/<int:id>/comment/", create_comment, name="create_comment"),
-    path("profile/edit/", update_user, name="update_user"),
+    path("update/", UserUpdateView.as_view(), name="update_user"),
+    path("register/", RegisterView.as_view(), name="register"),
+    path("login/", LoginView.as_view(), name="login"),
+    path("logout/", CustomLogoutView.as_view(), name="logout"),
+    path("post/<int:pk>/delete/", DeletePostView.as_view(), name="delete_post"),
+    path("post/<int:pk>/edit/", EditPostView.as_view(), name="edit_post"),
+    path("post/<int:id>/comment/", CreateCommentView.as_view(), name="create_comment"),
+    
 ]
 
 

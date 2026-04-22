@@ -6,11 +6,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.forms.models import BaseModelForm
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from typing import Any
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DetailView, ListView
+from django.views.generic import CreateView, DetailView, ListView, DeleteView, UpdateView
 from django.db.models import Q
+from django.views import View
 
 def hello(request):
     return HttpResponse("hello django")
@@ -43,11 +45,6 @@ class PostsListView(ListView):
             if tag_id:
                 queryset = queryset.filter(tags__id=tag_id)
             return queryset
-def published_posts(request):
-    posts = Post.objects.filter(is_published=True).order_by('-published_at')
-    return render(request, "posts/post_view.html", {"posts": posts})
-
-
     
 class PostDetailView(DetailView):
     model = Post
@@ -56,6 +53,7 @@ class PostDetailView(DetailView):
 
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
         return super().get(request, *args, **kwargs)
+
     
 class PostCreateView(LoginRequiredMixin, CreateView):
     model = Post
@@ -68,58 +66,45 @@ class PostCreateView(LoginRequiredMixin, CreateView):
         form.instance.user = self.request.user
         return super().form_valid(form)
 
-@login_required
-def delete_post(request, id):
-    post = get_object_or_404(Post, pk=id)
 
-    if post.user != request.user:
-        return redirect("post_detail", id=post.id)
-    if request.method == "POST":
+
+class DeletePostView(LoginRequiredMixin, View):
+
+    def get(self, request, pk):
+        post = get_object_or_404(Post, pk=pk)
+
+        if post.user != request.user:
+            return redirect("post_detail", pk=pk)
+
         post.delete()
         return redirect("post_list")
-    return render(request, "posts/confirm_delete.html", {"post": post})
+
+
+class EditPostView(LoginRequiredMixin, UpdateView):
+    model = Post
+    form_class = EditPostForm
+    template_name = "posts/edit_post.html"
+
+    def get_success_url(self):
+        return reverse_lazy("post_detail", kwargs={"pk": self.object.pk})
 
 
 
-def edit_post_view(request, id):
+class CreateCommentView(LoginRequiredMixin, View):
 
-    post = get_object_or_404(Post, id=id)
-    context = {"post": post}
-    if request.user != post.user:
-        return redirect("post_detail", pk=post.pk)
-    if request.method == "POST":
-        form = EditPostForm(request.POST, request.FILES)
-
-        if form.is_valid():
-            cleaned_data = form.cleaned_data
-            post.header = cleaned_data["header"]
-            post.description = cleaned_data["description"]
-            if cleaned_data.get("image"):
-                post.image = cleaned_data["image"]
-            post.save()
-            return redirect("post_detail", pk=post.pk)
-        if form.errors:
-            context["error"] = form.errors
-
-    return render(request, "posts/edit_post.html", context=context)
-
-
-@login_required
-def create_comment(request, id):
-
-    if request.method == "POST":
+    def post(self, request, id):
         form = CreateCommentForm(request.POST)
-        if form.is_valid():
-            if Post.objects.filter(id=id).exists():
-                Comment.objects.create(
-                    text=form.cleaned_data["text"], user=request.user, post_id=id
-                )
-                return redirect("post_detail", pk=id)
-    return redirect(
-        "post_detail",
-        pk=id,
-    )
 
+        if form.is_valid():
+            post = get_object_or_404(Post, id=id)
+
+            Comment.objects.create(
+                text=form.cleaned_data["text"],
+                user=request.user,
+                post=post
+            )
+
+        return redirect("post_detail", pk=id)
 
 # def get_post(request, id):
 #     post = get_object_or_404(Post, pk=id, is_published=True)

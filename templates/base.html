@@ -58,8 +58,12 @@
              style="width: 35px; height: 35px; font-weight: bold; color: black; background: #1111;">
             {{ user.username|first|upper }}
         </div>
-        <span style="color: black;">{{ user.username }}</span>
-        <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm ms-2">Выйти</a>
+        <span style="color: black;">' {{ user.username }}  '</span>
+        
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Выйти</button>
+        </form>
        
             {% endif %}
     {% endif %}
